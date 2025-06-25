@@ -11,7 +11,7 @@ export function Footer() {
   const lng = (params.lng as SupportedLanguage) || "id";
   return (
     <motion.div
-      className="flex flex-row items-center justify-center fixed bottom-6 text-xs w-full space-x-2"
+      className="flex flex-row items-center justify-center text-xs w-full space-x-2"
       initial={{ y: 20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}>
       <div>

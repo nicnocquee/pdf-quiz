@@ -48,7 +48,7 @@ export const PdfQuizClient = () => {
 
   return (
     <div
-      className="min-h-[100dvh] w-full flex justify-center"
+      className="flex justify-center"
       onDragOver={(e) => {
         e.preventDefault();
         setIsDragging(true);
