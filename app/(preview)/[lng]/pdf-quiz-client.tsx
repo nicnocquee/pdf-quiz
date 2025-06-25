@@ -77,7 +77,7 @@ export const PdfQuizClient = () => {
           </motion.div>
         )}
       </AnimatePresence>
-      <Card className="w-full max-w-md h-full border-0 sm:border sm:h-fit mt-12">
+      <Card className="w-full max-w-2xl h-full border-0 sm:border sm:h-fit mt-12">
         <CardHeader className="text-center space-y-6">
           <div className="mx-auto flex items-center justify-center space-x-2 text-muted-foreground">
             <div className="rounded-full bg-primary/10 p-2">
