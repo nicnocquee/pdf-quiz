@@ -4,7 +4,12 @@ import { ThemeProvider } from "next-themes";
 import { Geist } from "next/font/google";
 import { Footer } from "./footer";
 import { SupportedLanguage } from "@/locales/.generated/types";
-import { metadataDescription, title } from "@/locales/.generated/server";
+import {
+  metadataDescription,
+  title,
+  metadataKeywords,
+  name
+} from "@/locales/.generated/server";
 
 const geist = Geist({ subsets: ["latin"] });
 
@@ -16,8 +21,9 @@ export const generateMetadata = async ({
   const lng = ((await params).lng as SupportedLanguage) || "id";
   return {
     metadataBase: new URL(process.env.BASE_URL || "http://localhost:3000"),
-    title: title(lng),
-    description: metadataDescription(lng)
+    title: `${name(lng)} | ${title(lng)}`,
+    description: metadataDescription(lng),
+    keywords: metadataKeywords(lng)
   };
 };
 
