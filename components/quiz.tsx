@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -94,6 +94,7 @@ export default function Quiz({
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [score, setScore] = useState<number | null>(null);
   const [progress, setProgress] = useState(0);
+  const hasIncremented = useRef(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -101,6 +102,16 @@ export default function Quiz({
     }, 100);
     return () => clearTimeout(timer);
   }, [currentQuestionIndex, questions.length]);
+
+  useEffect(() => {
+    if (!hasIncremented.current && title) {
+      const key = `pdf-quiz-open-count-${title}`;
+      const current = Number(localStorage.getItem(key) || "0");
+      localStorage.setItem(key, (current + 1).toString());
+      hasIncremented.current = true;
+    }
+    // Only run on mount and when title changes
+  }, [title]);
 
   const handleSelectAnswer = (answer: string) => {
     if (!isSubmitted) {
