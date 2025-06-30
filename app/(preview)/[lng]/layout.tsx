@@ -40,11 +40,11 @@ export default async function RootLayout({
   const lng = (await params).lng;
   return (
     <html lang="en" suppressHydrationWarning className={`${geist.className}`}>
-      <body className="pb-16">
+      <body className="min-h-screen flex flex-col">
         <ThemeProvider attribute="class" enableSystem forcedTheme="dark">
           <Toaster position="top-center" richColors />
           <UserSession lng={lng} />
-          {children}
+          <main className="flex-1">{children}</main>
           <Footer />
         </ThemeProvider>
       </body>
