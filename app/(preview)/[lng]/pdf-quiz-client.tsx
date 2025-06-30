@@ -16,6 +16,7 @@ import usePdfQuiz from "@/components/use-pdf-quiz";
 import PdfDropZone from "@/components/pdf-drop-zone";
 import QuizProgress from "@/components/quiz-progress";
 import QuizForm from "@/components/quiz-form";
+import { useState, useEffect } from "react";
 
 export const PdfQuizClient = () => {
   const params = useParams();
@@ -33,18 +34,33 @@ export const PdfQuizClient = () => {
     handleFileChange,
     handleSubmitWithFiles,
     clearPDF,
-    progressValue
+    progressValue,
+    setFiles,
+    resetQuizState
   } = usePdfQuiz(lng);
+
+  // State to control quiz visibility
+  const [showQuiz, setShowQuiz] = useState(true);
+
+  useEffect(() => {
+    if (files.length > 0 && questions.length === 4) {
+      setShowQuiz(true);
+    }
+  }, [files, questions.length]);
 
   const quizGenerationInProgress =
     isLoading || (partialQuestions && partialQuestions.length < 4);
 
-  if (questions.length === 4) {
+  if (questions.length === 4 && showQuiz) {
     return (
       <Quiz
         title={quizTitle ?? "Quiz"}
         questions={questions}
         clearPDF={clearPDF}
+        onClose={() => {
+          resetQuizState();
+          setShowQuiz(false);
+        }}
       />
     );
   }

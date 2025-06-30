@@ -156,6 +156,14 @@ const usePdfQuiz = (lng: SupportedLanguage) => {
     ? (partialQuestions.length / 4) * 100
     : 0;
 
+  // Reset all in-memory state but do NOT clear local storage
+  const resetQuizState = useCallback(() => {
+    setFiles([]);
+    setQuestions([]);
+    setQuizTitle("");
+    setFileHash(undefined);
+  }, []);
+
   return {
     files,
     setFiles,
@@ -170,7 +178,8 @@ const usePdfQuiz = (lng: SupportedLanguage) => {
     handleFileChange,
     handleSubmitWithFiles,
     clearPDF,
-    progressValue
+    progressValue,
+    resetQuizState
   };
 };
 

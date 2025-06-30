@@ -27,6 +27,7 @@ type QuizProps = {
   questions: Question[];
   clearPDF: () => void;
   title: string;
+  onClose?: () => void;
 };
 
 const QuestionCard: React.FC<{
@@ -83,7 +84,8 @@ const QuestionCard: React.FC<{
 export default function Quiz({
   questions,
   clearPDF,
-  title = "Quiz"
+  title = "Quiz",
+  onClose
 }: QuizProps) {
   const params = useParams();
   const lng = (params.lng as SupportedLanguage) || "id";
@@ -155,7 +157,18 @@ export default function Quiz({
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <main className="container mx-auto px-4 py-12 max-w-4xl">
+      <main className="container mx-auto px-4 py-12 max-w-4xl relative">
+        {/* Close button */}
+        {onClose && (
+          <Button
+            type="button"
+            variant="ghost"
+            className="absolute top-4 right-4 z-10"
+            onClick={onClose}
+            aria-label="Close quiz">
+            <X className="h-5 w-5" />
+          </Button>
+        )}
         <h1 className="text-3xl font-bold mb-8 text-center text-foreground">
           {title}
         </h1>
