@@ -1,18 +1,56 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { experimental_useObject } from "ai/react";
 import { questionsSchema } from "@/lib/schemas";
 import { z } from "zod";
 import { toast } from "sonner";
 import { generateQuizTitle } from "@/app/(preview)/actions";
 import { SupportedLanguage } from "@/locales/.generated/types";
+import { useLocalStorage } from "@nicnocquee/use-local-storage-hook";
+
+// Hash a file using SHA-256 and return a hex string
+const hashFile = async (file: File): Promise<string> => {
+  const arrayBuffer = await file.arrayBuffer();
+  const hashBuffer = await crypto.subtle.digest("SHA-256", arrayBuffer);
+  return Array.from(new Uint8Array(hashBuffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+};
+
+const getQuizKey = (hash?: string) =>
+  hash ? `pdf-quiz-questions-${hash}` : undefined;
 
 const usePdfQuiz = (lng: SupportedLanguage) => {
   const [files, setFiles] = useState<File[]>([]);
+  const mainFile = files[0];
+  const [fileHash, setFileHash] = useState<string | undefined>(undefined);
+  const quizKey = useMemo(() => getQuizKey(fileHash), [fileHash]);
   const [questions, setQuestions] = useState<z.infer<typeof questionsSchema>>(
     []
   );
-  const [isDragging, setIsDragging] = useState(false);
   const [quizTitle, setQuizTitle] = useState<string>();
+  const [isDragging, setIsDragging] = useState(false);
+
+  // Compute hash when file changes
+  useEffect(() => {
+    let cancelled = false;
+    if (mainFile) {
+      hashFile(mainFile).then((hash) => {
+        if (!cancelled) setFileHash(hash);
+      });
+    } else {
+      setFileHash(undefined);
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [mainFile]);
+
+  // Dynamically use localStorage only if quizKey is defined
+  const [storedQuestions, setStoredQuestions, clearStoredQuestions] =
+    useLocalStorage<z.infer<typeof questionsSchema>>(
+      quizKey || "__no_pdf__",
+      []
+    );
 
   const {
     submit,
@@ -28,6 +66,7 @@ const usePdfQuiz = (lng: SupportedLanguage) => {
     },
     onFinish: ({ object }) => {
       setQuestions(object ?? []);
+      if (quizKey) setStoredQuestions(object ?? []);
     }
   });
 
@@ -88,7 +127,19 @@ const usePdfQuiz = (lng: SupportedLanguage) => {
   const clearPDF = useCallback(() => {
     setFiles([]);
     setQuestions([]);
-  }, []);
+    if (quizKey) clearStoredQuestions();
+  }, [clearStoredQuestions, quizKey]);
+
+  useEffect(() => {
+    if (
+      storedQuestions &&
+      storedQuestions.length > 0 &&
+      questions.length === 0
+    ) {
+      setQuestions(storedQuestions);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [quizKey]);
 
   const progressValue = partialQuestions
     ? (partialQuestions.length / 4) * 100
