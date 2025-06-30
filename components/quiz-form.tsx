@@ -10,6 +10,7 @@ interface QuizFormProps {
   isLoading: boolean;
   lng: SupportedLanguage;
   children: React.ReactNode;
+  quizGenerationInProgress?: boolean;
 }
 
 const QuizForm = ({
@@ -17,11 +18,15 @@ const QuizForm = ({
   files,
   isLoading,
   lng,
-  children
+  children,
+  quizGenerationInProgress = false
 }: QuizFormProps) => (
   <form onSubmit={onSubmit} className="space-y-4">
     {children}
-    <Button type="submit" className="w-full" disabled={files.length === 0}>
+    <Button
+      type="submit"
+      className="w-full"
+      disabled={quizGenerationInProgress || files.length === 0}>
       {isLoading ? (
         <span className="flex items-center space-x-2">
           <Loader2 className="h-4 w-4 animate-spin" />

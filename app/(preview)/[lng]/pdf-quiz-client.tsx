@@ -36,6 +36,9 @@ export const PdfQuizClient = () => {
     progressValue
   } = usePdfQuiz(lng);
 
+  const quizGenerationInProgress =
+    isLoading || (partialQuestions && partialQuestions.length < 4);
+
   if (questions.length === 4) {
     return (
       <Quiz
@@ -96,13 +99,15 @@ export const PdfQuizClient = () => {
             onSubmit={handleSubmitWithFiles}
             files={files}
             isLoading={isLoading}
-            lng={lng}>
+            lng={lng}
+            quizGenerationInProgress={quizGenerationInProgress}>
             <PdfDropZone
               files={files}
               isDragging={isDragging}
               lng={lng}
               onFileChange={handleFileChange}
               setIsDragging={setIsDragging}
+              disabled={quizGenerationInProgress}
             />
           </QuizForm>
         </CardContent>

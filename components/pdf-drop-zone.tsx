@@ -13,6 +13,7 @@ interface PdfDropZoneProps {
       | { target: { files: FileList | null } }
   ) => void;
   setIsDragging: (dragging: boolean) => void;
+  disabled?: boolean;
 }
 
 const PdfDropZone = ({
@@ -20,18 +21,21 @@ const PdfDropZone = ({
   isDragging,
   lng,
   onFileChange,
-  setIsDragging
+  setIsDragging,
+  disabled = false
 }: PdfDropZoneProps) => (
   <div
-    className="relative flex flex-col items-center justify-center border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 transition-colors hover:border-muted-foreground/50"
+    className={`relative flex flex-col items-center justify-center border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 transition-colors hover:border-muted-foreground/50${disabled ? " pointer-events-none opacity-60" : ""}`}
     onDragOver={(e) => {
+      if (disabled) return;
       e.preventDefault();
       setIsDragging(true);
     }}
-    onDragExit={() => setIsDragging(false)}
-    onDragEnd={() => setIsDragging(false)}
-    onDragLeave={() => setIsDragging(false)}
+    onDragExit={() => !disabled && setIsDragging(false)}
+    onDragEnd={() => !disabled && setIsDragging(false)}
+    onDragLeave={() => !disabled && setIsDragging(false)}
     onDrop={(e) => {
+      if (disabled) return;
       e.preventDefault();
       setIsDragging(false);
       onFileChange({ target: { files: e.dataTransfer.files } });
@@ -41,6 +45,7 @@ const PdfDropZone = ({
       onChange={onFileChange}
       accept="application/pdf"
       className="absolute inset-0 opacity-0 cursor-pointer"
+      disabled={disabled}
     />
     <FileUp className="h-8 w-8 mb-2 text-muted-foreground" />
     <p className="text-sm text-muted-foreground text-center">
