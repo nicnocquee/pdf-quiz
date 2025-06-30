@@ -11,6 +11,8 @@ import {
   name
 } from "@/locales/.generated/server";
 import UserSession from "@/components/user-session";
+import Link from "next/link";
+import Image from "next/image";
 
 const geist = Geist({ subsets: ["latin"] });
 
@@ -43,7 +45,12 @@ export default async function RootLayout({
       <body className="min-h-screen flex flex-col">
         <ThemeProvider attribute="class" enableSystem forcedTheme="dark">
           <Toaster position="top-center" richColors />
-          <UserSession lng={lng} />
+          <div className="flex flex-row justify-between items-center p-4">
+            <Link href={`/${lng}`} className="text-2xl font-bold">
+              AI🧠PDF
+            </Link>
+            <UserSession lng={lng} />
+          </div>
           <main className="flex-1">{children}</main>
           <Footer />
         </ThemeProvider>
