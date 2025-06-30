@@ -23,6 +23,11 @@ import {
   tryAnotherPdf
 } from "@/locales/.generated/server";
 
+import {
+  useRegisterDialogOnScore,
+  RegisterDialog
+} from "@/components/use-register-dialog-on-score";
+
 type QuizProps = {
   questions: Question[];
   clearPDF: () => void;
@@ -97,6 +102,8 @@ export default function Quiz({
   const [score, setScore] = useState<number | null>(null);
   const [progress, setProgress] = useState(0);
   const hasIncremented = useRef(false);
+  const { showRegisterDialog, setShowRegisterDialog, checkingAuth } =
+    useRegisterDialogOnScore(isSubmitted);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -215,29 +222,41 @@ export default function Quiz({
                     </div>
                   </div>
                 ) : (
-                  <div className="space-y-8">
-                    <QuizScore
-                      correctAnswers={score ?? 0}
-                      totalQuestions={questions.length}
+                  <>
+                    <div className="space-y-8">
+                      <QuizScore
+                        correctAnswers={score ?? 0}
+                        totalQuestions={questions.length}
+                      />
+                      <div className="space-y-12">
+                        <QuizReview
+                          questions={questions}
+                          userAnswers={answers}
+                        />
+                      </div>
+                      <div className="flex justify-center space-x-4 pt-4">
+                        <Button
+                          onClick={handleReset}
+                          variant="outline"
+                          className="bg-muted hover:bg-muted/80 w-full">
+                          <RefreshCw className="mr-2 h-4 w-4" />{" "}
+                          {resetQuiz(lng)}
+                        </Button>
+                        <Button
+                          onClick={clearPDF}
+                          className="bg-primary hover:bg-primary/90 w-full">
+                          <FileText className="mr-2 h-4 w-4" />{" "}
+                          {tryAnotherPdf(lng)}
+                        </Button>
+                      </div>
+                    </div>
+                    {/* Registration Dialog for non-logged-in users */}
+                    <RegisterDialog
+                      open={showRegisterDialog && !checkingAuth}
+                      onOpenChange={setShowRegisterDialog}
+                      lng={lng}
                     />
-                    <div className="space-y-12">
-                      <QuizReview questions={questions} userAnswers={answers} />
-                    </div>
-                    <div className="flex justify-center space-x-4 pt-4">
-                      <Button
-                        onClick={handleReset}
-                        variant="outline"
-                        className="bg-muted hover:bg-muted/80 w-full">
-                        <RefreshCw className="mr-2 h-4 w-4" /> {resetQuiz(lng)}
-                      </Button>
-                      <Button
-                        onClick={clearPDF}
-                        className="bg-primary hover:bg-primary/90 w-full">
-                        <FileText className="mr-2 h-4 w-4" />{" "}
-                        {tryAnotherPdf(lng)}
-                      </Button>
-                    </div>
-                  </div>
+                  </>
                 )}
               </motion.div>
             </AnimatePresence>
