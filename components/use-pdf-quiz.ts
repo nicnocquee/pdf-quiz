@@ -18,12 +18,15 @@ const hashFile = async (file: File): Promise<string> => {
 
 const getQuizKey = (hash?: string) =>
   hash ? `pdf-quiz-questions-${hash}` : undefined;
+const getQuizTitleKey = (hash?: string) =>
+  hash ? `pdf-quiz-title-${hash}` : undefined;
 
 const usePdfQuiz = (lng: SupportedLanguage) => {
   const [files, setFiles] = useState<File[]>([]);
   const mainFile = files[0];
   const [fileHash, setFileHash] = useState<string | undefined>(undefined);
   const quizKey = useMemo(() => getQuizKey(fileHash), [fileHash]);
+  const quizTitleKey = useMemo(() => getQuizTitleKey(fileHash), [fileHash]);
   const [questions, setQuestions] = useState<z.infer<typeof questionsSchema>>(
     []
   );
@@ -51,6 +54,8 @@ const usePdfQuiz = (lng: SupportedLanguage) => {
       quizKey || "__no_pdf__",
       []
     );
+  const [storedQuizTitle, setStoredQuizTitle, clearStoredQuizTitle] =
+    useLocalStorage<string>(quizTitleKey || "__no_pdf_title__", "");
 
   const {
     submit,
@@ -67,6 +72,7 @@ const usePdfQuiz = (lng: SupportedLanguage) => {
     onFinish: ({ object }) => {
       setQuestions(object ?? []);
       if (quizKey) setStoredQuestions(object ?? []);
+      if (quizTitleKey && quizTitle) setStoredQuizTitle(quizTitle);
     }
   });
 
@@ -120,15 +126,18 @@ const usePdfQuiz = (lng: SupportedLanguage) => {
       submit({ files: encodedFiles });
       const generatedTitle = await generateQuizTitle(encodedFiles[0].name);
       setQuizTitle(generatedTitle);
+      if (quizTitleKey) setStoredQuizTitle(generatedTitle);
     },
-    [files, submit]
+    [files, submit, quizTitleKey, setStoredQuizTitle]
   );
 
   const clearPDF = useCallback(() => {
     setFiles([]);
     setQuestions([]);
+    setQuizTitle("");
     if (quizKey) clearStoredQuestions();
-  }, [clearStoredQuestions, quizKey]);
+    if (quizTitleKey) clearStoredQuizTitle();
+  }, [clearStoredQuestions, quizKey, quizTitleKey, clearStoredQuizTitle]);
 
   useEffect(() => {
     if (
@@ -138,8 +147,10 @@ const usePdfQuiz = (lng: SupportedLanguage) => {
     ) {
       setQuestions(storedQuestions);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [quizKey]);
+    if (storedQuizTitle && !quizTitle) {
+      setQuizTitle(storedQuizTitle);
+    }
+  }, [quizKey, storedQuestions, storedQuizTitle, questions.length, quizTitle]);
 
   const progressValue = partialQuestions
     ? (partialQuestions.length / 4) * 100
