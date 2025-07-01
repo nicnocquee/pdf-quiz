@@ -4,13 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "npm run generate-locales && next dev",
-    "build": "npm run generate-locales && next build",
+    "build": "npm run generate-locales && npm run prisma:generate && npm run prisma:migrate:prod && next build",
     "start": "next start",
     "lint": "next lint",
     "generate-locales": "simple-i18n-next -i ./locales -l en",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prisma:migrate:dev": "prisma migrate dev --name init",
+    "prisma:migrate:prod": "prisma migrate deploy",
     "prisma:studio": "prisma studio",
     "prisma:generate": "prisma generate"
   },
